@@ -8,169 +8,296 @@
 </head>
 <body data-theme="dark">
 
-<div class="stars" id="stars"></div>
-<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<!-- ===== طبقات الخلفية ===== -->
+<div class="backdrop" aria-hidden="true">
+  <div class="grid-lines"></div>
+  <div class="aurora"><i></i><i></i><i></i></div>
+  <div class="stars" id="stars"></div>
+  <div class="vignette"></div>
+</div>
 
-<!-- ===== BOOT SCREEN (desktop app) ===== -->
+<!-- ===== شاشة الإقلاع ===== -->
 <div class="boot" id="boot" hidden>
-  <div class="boot-radar">
-    <span class="sweep"></span>
-    <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
-    <div class="boot-core"></div>
+  <div class="boot-ring">
+    <span class="boot-sweep"></span>
+    <span class="boot-orbit o1"></span><span class="boot-orbit o2"></span>
+    <div class="boot-core">
+      <svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">
+        <circle cx="24" cy="24" r="18" fill="none" stroke="url(#bootGrad)" stroke-width="2.5"/>
+        <circle cx="24" cy="24" r="4.5" fill="url(#bootGrad)"/>
+        <path d="M24 6v6M24 36v6M6 24h6M36 24h6" stroke="url(#bootGrad)" stroke-width="2.4" stroke-linecap="round"/>
+        <defs><linearGradient id="bootGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient></defs>
+      </svg>
+    </div>
   </div>
-  <div class="boot-name">ميراس</div>
-  <div class="boot-sub" id="bootSub">جارٍ تهيئة النظام…</div>
-  <div class="boot-bar"><i id="bootFill"></i></div>
+  <div class="boot-name" data-i18n="app_title">ميراس</div>
+  <div class="boot-step" id="bootStep"></div>
+  <div class="boot-track"><i id="bootFill"></i></div>
 </div>
 
-<!-- ===== CUSTOM TITLE BAR (frameless desktop) ===== -->
-<div class="titlebar" id="titlebar" hidden>
-  <div class="tb-drag"></div>
-  <div class="tb-title"><span class="tb-dot"></span><span id="tbLabel">ميراس</span></div>
-  <div class="tb-btns">
-    <button class="tb-btn" id="tbMin" title="minimize" aria-label="minimize"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="0" y="5" width="11" height="1.4" fill="currentColor"/></svg></button>
-    <button class="tb-btn" id="tbMax" title="maximize" aria-label="maximize"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="0.6" y="0.6" width="9.8" height="9.8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></button>
-    <button class="tb-btn danger" id="tbClose" title="close" aria-label="close"><svg width="11" height="11" viewBox="0 0 11 11"><path d="M1 1l9 9M10 1l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+<!-- ===== شريط النافذة ===== -->
+<header class="titlebar" id="titlebar" hidden>
+  <div class="tb-drag">
+    <span class="tb-mark"></span>
+    <span class="tb-name" id="tbName" data-i18n="app_title">ميراس</span>
+    <span class="tb-state" id="tbState"></span>
   </div>
-</div>
+  <div class="tb-controls">
+    <button class="tb-btn" id="tbMin" type="button" title="تصغير" aria-label="تصغير">
+      <svg width="11" height="11" viewBox="0 0 11 11"><rect x="0" y="5" width="11" height="1.4" fill="currentColor"/></svg>
+    </button>
+    <button class="tb-btn" id="tbMax" type="button" title="تكبير" aria-label="تكبير">
+      <svg width="11" height="11" viewBox="0 0 11 11"><rect x="0.7" y="0.7" width="9.6" height="9.6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+    <button class="tb-btn tb-close" id="tbClose" type="button" title="إغلاق" aria-label="إغلاق">
+      <svg width="11" height="11" viewBox="0 0 11 11"><path d="M1.2 1.2l8.6 8.6M9.8 1.2l-8.6 8.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
 
-<div class="app">
-  <!-- ===== TOP BAR ===== -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 48 48" width="34" height="34">
-          <defs>
-            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#22d3ee"/>
-              <stop offset="55%" stop-color="#6366f1"/>
-              <stop offset="100%" stop-color="#a855f7"/>
-            </linearGradient>
-          </defs>
-          <circle cx="24" cy="24" r="19" fill="none" stroke="url(#lg)" stroke-width="2.5"/>
-          <circle cx="24" cy="24" r="12" fill="none" stroke="url(#lg)" stroke-width="1.4" opacity=".6"/>
-          <circle cx="24" cy="24" r="4.5" fill="url(#lg)"/>
-          <path d="M24 5v6M24 37v6M5 24h6M37 24h6" stroke="url(#lg)" stroke-width="2.4" stroke-linecap="round"/>
+<div class="shell">
+  <!-- ===== الشريط الجانبي ===== -->
+  <nav class="sidebar" id="sidebar" aria-label="main">
+    <div class="side-brand">
+      <div class="side-logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="30" height="30">
+          <defs><linearGradient id="sideGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#22d3ee"/><stop offset="60%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a855f7"/>
+          </linearGradient></defs>
+          <circle cx="24" cy="24" r="17" fill="none" stroke="url(#sideGrad)" stroke-width="3"/>
+          <circle cx="24" cy="24" r="4" fill="url(#sideGrad)"/>
         </svg>
       </div>
-      <div class="brand-text">
-        <h1 data-i18n="app_title">ميراس</h1>
-        <p data-i18n="app_sub">خريطة المساحة والتنظيف الآمن</p>
+      <div class="side-name">
+        <b data-i18n="app_title">ميراس</b>
+        <small data-i18n="app_sub">خريطة المساحة</small>
       </div>
     </div>
 
-    <div class="controls">
-      <button class="ctl" id="langBtn" title="Language">
-        <span class="ctl-ico">A</span><span id="langLabel">EN</span>
+    <ul class="nav" role="tablist">
+      <li><button class="nav-item is-active" data-view="dashboard" role="tab" type="button">
+        <svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm9 0h7v-9h-7v9Zm0-16v5h7V4h-7Z"/></svg>
+        <span data-i18n="nav_dashboard">الرئيسية</span></button></li>
+      <li><button class="nav-item" data-view="map" role="tab" type="button">
+        <svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5 9 3l6 2.5L21 3v15.5L15 21l-6-2.5L3 21V5.5Zm6-2v15m6-12.5v15"/></svg>
+        <span data-i18n="nav_map">خريطة المساحة</span></button></li>
+      <li><button class="nav-item" data-view="cleanup" role="tab" type="button">
+        <svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l-1 4H7L6 3Zm-2 6h16l-1.2 11.2A2 2 0 0 1 16.8 22H7.2a2 2 0 0 1-2-1.8L4 9Zm5 4v6m6-6v6"/></svg>
+        <span data-i18n="nav_cleanup">التنظيف الآمن</span>
+        <span class="nav-badge" id="navTrashCount">0</span></button></li>
+      <li><button class="nav-item" data-view="trash" role="tab" type="button">
+        <svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2m-8 0 1 13h8l1-13"/></svg>
+        <span data-i18n="nav_trash">السلة</span>
+        <span class="nav-badge" id="navQuarCount">0</span></button></li>
+      <li><button class="nav-item" data-view="settings" role="tab" type="button">
+        <svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1L15 3h-4l-.3 2.6a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 1.7 1L11 21h4l.3-2.6a7.6 7.6 0 0 0 1.7-1l2.4 1 2-3.4L19.4 13Z"/></svg>
+        <span data-i18n="nav_settings">الإعدادات</span></button></li>
+    </ul>
+
+    <div class="side-foot">
+      <button class="scan-cta" id="scanBtn" type="button">
+        <span class="cta-ring"></span>
+        <span data-i18n="scan_now">فحص الآن</span>
       </button>
-      <button class="ctl" id="themeBtn" title="Theme">
-        <span class="ctl-ico" id="themeIco">☾</span>
-      </button>
-      <button class="ctl ctl-scan" id="scanBtn">
-        <span class="pulse"></span><span data-i18n="scan_now">فحص الآن</span>
-      </button>
+      <div class="side-ver"><span id="version"></span></div>
     </div>
-  </header>
+  </nav>
 
-  <!-- ===== SUMMARY BAR ===== -->
-  <section class="summary" id="summary">
-    <div class="sum-card">
-      <span class="sum-label" data-i18n="used">المستخدَم</span>
-      <span class="sum-value" id="usedVal">—</span>
-      <div class="bar"><div class="bar-fill used" id="usedBar"></div></div>
-    </div>
-    <div class="sum-card">
-      <span class="sum-label" data-i18n="free">المتاح</span>
-      <span class="sum-value" id="freeVal">—</span>
-      <div class="bar"><div class="bar-fill free" id="freeBar"></div></div>
-    </div>
-    <div class="sum-card">
-      <span class="sum-label" data-i18n="reclaimable">قابل للاسترجاع</span>
-      <span class="sum-value accent" id="reclaimVal">—</span>
-      <div class="bar"><div class="bar-fill reclaim" id="reclaimBar"></div></div>
-    </div>
-    <div class="sum-card">
-      <span class="sum-label" data-i18n="system">النظام</span>
-      <span class="sum-value small" id="sysVal">—</span>
-    </div>
-  </section>
+  <!-- ===== المحتوى ===== -->
+  <main class="main" id="main">
 
-  <!-- ===== SPACE MAP ===== -->
-  <section class="panel map-panel">
-    <div class="panel-head">
-      <h2 data-i18n="space_map">خريطة المساحة</h2>
-      <div class="legend">
-        <span class="lg"><i class="sw safe"></i><span data-i18n="safe">آمن</span></span>
-        <span class="lg"><i class="sw caution"></i><span data-i18n="caution">حذر</span></span>
-        <span class="lg"><i class="sw danger"></i><span data-i18n="danger">خطر</span></span>
+    <!-- ---------- الرئيسية ---------- -->
+    <section class="view is-active" id="view-dashboard">
+      <div class="view-head">
+        <div>
+          <h1 data-i18n="overview">نظرة عامة</h1>
+          <p class="view-sub" id="dashSub"></p>
+        </div>
       </div>
-    </div>
-    <div class="drives" id="drives"></div>
-    <p class="hint" data-i18n="map_hint">اضغط على أي مربع لعرض تفاصيله</p>
-  </section>
 
-  <!-- ===== CLEANUP ===== -->
-  <section class="panel">
-    <div class="panel-head">
-      <h2 data-i18n="cleanup">التنظيف الآمن</h2>
-      <div class="panel-actions">
-        <button class="mini" id="selectAllBtn" data-i18n="select_all">تحديد الكل الآمن</button>
-        <button class="mini danger-btn" id="cleanBtn" disabled>
-          <span data-i18n="to_quarantine">نقل المحدد إلى السلة</span>
-          <span class="badge" id="selCount">0</span>
-        </button>
+      <div class="grid-hero">
+        <article class="card gauge-card">
+          <div class="card-head"><h3 data-i18n="disk_gauge">مؤشر القرص</h3></div>
+          <div class="gauge-wrap">
+            <svg class="gauge" viewBox="0 0 200 200" id="gaugeSvg" aria-hidden="true">
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#22d3ee"/><stop offset="55%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a855f7"/>
+                </linearGradient>
+                <linearGradient id="gaugeHot" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ef4444"/>
+                </linearGradient>
+              </defs>
+              <circle class="g-track" cx="100" cy="100" r="80"/>
+              <circle class="g-fill" id="gaugeFill" cx="100" cy="100" r="80"/>
+              <circle class="g-tick" cx="100" cy="100" r="66"/>
+            </svg>
+            <div class="gauge-center">
+              <strong id="gaugePct">—</strong>
+              <span data-i18n="used">المستخدَم</span>
+            </div>
+          </div>
+          <div class="gauge-legend">
+            <span><i class="sw safe"></i><span data-i18n="free">المتاح</span> <b id="gFree">—</b></span>
+            <span><i class="sw danger"></i><span data-i18n="used">المستخدَم</span> <b id="gUsed">—</b></span>
+          </div>
+        </article>
+
+        <article class="card stat-card">
+          <div class="card-head"><h3 data-i18n="reclaimable">قابل للاسترجاع</h3></div>
+          <div class="big-num accent" id="statReclaim">—</div>
+          <p class="stat-sub" id="statFound"></p>
+          <div class="mini-bars" id="catBars"></div>
+          <button class="btn btn-primary" id="dashClean" type="button" data-i18n="nav_cleanup">التنظيف الآمن</button>
+        </article>
       </div>
-    </div>
 
-    <div class="progress-wrap" id="progressWrap" hidden>
-      <div class="progress"><div class="progress-fill" id="progFill"></div></div>
-      <span class="progress-label" id="progLabel" data-i18n="scanning">جارٍ الفحص…</span>
-    </div>
+      <div class="grid-stats" id="statGrid"></div>
 
-    <div class="cats" id="cats"></div>
-  </section>
+      <article class="card">
+        <div class="card-head">
+          <h3 data-i18n="last_scan">آخر فحص</h3>
+          <button class="btn btn-ghost" id="dashScan" type="button" data-i18n="scan_now">فحص الآن</button>
+        </div>
+        <div class="scan-meta" id="scanMeta"></div>
+      </article>
+    </section>
 
-  <!-- ===== QUARANTINE ===== -->
-  <section class="panel">
-    <div class="panel-head">
-      <h2 data-i18n="quarantine">السلة (قابلة للاسترجاع)</h2>
-      <div class="panel-actions">
-        <span class="qsize" id="qSize">—</span>
-        <button class="mini" id="restoreAllBtn" data-i18n="restore_all">استرجاع الكل</button>
+    <!-- ---------- خريطة المساحة ---------- -->
+    <section class="view" id="view-map">
+      <div class="view-head">
+        <div>
+          <h1 data-i18n="space_map">خريطة المساحة</h1>
+          <p class="view-sub" data-i18n="map_hint">اضغط على أي مربع لفتح فئته</p>
+        </div>
+        <div class="legend-bar">
+          <span class="lg"><i class="sw safe"></i><span data-i18n="safe">آمن</span></span>
+          <span class="lg"><i class="sw caution"></i><span data-i18n="caution">حذر</span></span>
+          <span class="lg"><i class="sw danger"></i><span data-i18n="danger">خطر</span></span>
+        </div>
       </div>
-    </div>
-    <p class="safe-note" data-i18n="no_delete_note">
-      لا يوجد حذف نهائي في هذا التطبيق. كل شيء يُنقل إلى السلة ويمكن استرجاعه.
-    </p>
-    <div class="qlist" id="qlist"></div>
-  </section>
+      <div class="map-stage" id="drives"></div>
+    </section>
 
-  <footer class="foot">
-    <span data-i18n="foot_local">كل البيانات محلية على جهازك — لا تغادر الجهاز.</span>
-    <span class="dot">·</span>
-    <span id="version"></span>
-  </footer>
+    <!-- ---------- التنظيف ---------- -->
+    <section class="view" id="view-cleanup">
+      <div class="view-head">
+        <div>
+          <h1 data-i18n="cleanup">التنظيف الآمن</h1>
+          <p class="view-sub" data-i18n="never_deleted">لا يوجد حذف نهائي</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-ghost" id="selectAllBtn" type="button" data-i18n="select_all">تحديد الكل الآمن</button>
+          <button class="btn btn-ghost" id="clearSelBtn" type="button" data-i18n="clear_sel">إلغاء التحديد</button>
+          <button class="btn btn-danger" id="cleanBtn" type="button" disabled>
+            <span data-i18n="to_quarantine">نقل المحدد إلى السلة</span>
+            <span class="btn-badge" id="selCount">0</span>
+          </button>
+        </div>
+      </div>
+      <div class="filter-bar" id="riskFilter">
+        <button class="chip is-on" data-risk="all" type="button" data-i18n="filter_all">الكل</button>
+        <button class="chip" data-risk="safe" type="button"><i class="dot safe"></i><span data-i18n="safe">آمن</span></button>
+        <button class="chip" data-risk="caution" type="button"><i class="dot caution"></i><span data-i18n="caution">حذر</span></button>
+        <button class="chip" data-risk="danger" type="button"><i class="dot danger"></i><span data-i18n="danger">خطر</span></button>
+      </div>
+      <div class="cat-list" id="cats"></div>
+    </section>
+
+    <!-- ---------- السلة ---------- -->
+    <section class="view" id="view-trash">
+      <div class="view-head">
+        <div>
+          <h1 data-i18n="trash">السلة</h1>
+          <p class="view-sub" data-i18n="trash_hint">كل ما تحذفه يبقى هنا</p>
+        </div>
+        <div class="view-actions">
+          <span class="qsize" id="qSize">—</span>
+          <button class="btn btn-ghost" id="restoreAllBtn" type="button" data-i18n="restore_all">استرجاع الكل</button>
+        </div>
+      </div>
+      <div class="qlist" id="qlist"></div>
+    </section>
+
+    <!-- ---------- الإعدادات ---------- -->
+    <section class="view" id="view-settings">
+      <div class="view-head">
+        <div><h1 data-i18n="settings">الإعدادات</h1></div>
+      </div>
+
+      <article class="card">
+        <div class="card-head"><h3 data-i18n="language">اللغة</h3></div>
+        <div class="seg" id="langSeg">
+          <button class="seg-btn is-on" data-lang="ar" type="button">العربية</button>
+          <button class="seg-btn" data-lang="en" type="button">English</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><h3 data-i18n="theme">المظهر</h3></div>
+        <div class="seg" id="themeSeg">
+          <button class="seg-btn is-on" data-theme-val="dark" type="button" data-i18n="theme_dark">داكن</button>
+          <button class="seg-btn" data-theme-val="light" type="button" data-i18n="theme_light">فاتح</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><h3 data-i18n="safety_title">ما لا يمسّه التطبيق</h3></div>
+        <p class="card-note" data-i18n="safety_sub">هذه المسارات مرفوضة دائماً</p>
+        <ul class="guard-list">
+          <li><b data-i18n="system">النظام</b><span>/usr /etc /bin · C:\Windows</span></li>
+          <li><b>.ssh .git .env</b><span data-i18n="safety_sub">مفاتيح وإعدادات</span></li>
+          <li><b>Saved Games .sav</b><span data-i18n="cat_build">بيانات الألعاب</span></li>
+          <li><b>24h</b><span>الملفات المعدّلة حديثاً</span></li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><h3 data-i18n="about">عن التطبيق</h3></div>
+        <div class="about-row"><span data-i18n="version">الإصدار</span><b id="setVersion">—</b></div>
+        <div class="about-row"><span data-i18n="files_scanned">ملف مفحوص</span><b id="setFiles">—</b></div>
+        <div class="about-row"><span data-i18n="foot_local">البيانات</span><b>100% محلي</b></div>
+      </article>
+    </section>
+  </main>
 </div>
 
-<!-- ===== CONFIRM MODAL ===== -->
+<!-- ===== لوحة الفحص ===== -->
+<div class="scan-dock" id="scanDock" hidden>
+  <div class="scan-visual">
+    <div class="scan-radar"><span class="scan-sweep"></span><i></i><i></i></div>
+  </div>
+  <div class="scan-body">
+    <div class="scan-top">
+      <strong id="scanPhase" data-i18n="scanning">جارٍ الفحص</strong>
+      <span class="scan-pct" id="scanPct">0%</span>
+    </div>
+    <div class="scan-track"><i id="scanFill"></i></div>
+    <div class="scan-path" id="scanPath"></div>
+  </div>
+  <button class="scan-cancel" id="scanCancel" type="button" title="إلغاء">✕</button>
+</div>
+
+<!-- ===== نافذة التأكيد ===== -->
 <div class="modal-back" id="modal" hidden>
   <div class="modal">
-    <div class="modal-ico" id="modalIco">⚠</div>
-    <h3 id="modalTitle">تأكيد</h3>
-    <p id="modalBody">—</p>
-    <div class="modal-count">
-      <span data-i18n="will_free">ستحرّر</span>
-      <strong id="modalSize">—</strong>
+    <div class="modal-ico">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3 2 20h20L12 3Zm0 6v5m0 3v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <label class="confirm-label">
+    <h3 id="modalTitle"></h3>
+    <p id="modalBody"></p>
+    <div class="modal-free"><span data-i18n="will_free">ستحرّر</span><strong id="modalSize">—</strong></div>
+    <label class="confirm-row">
       <span data-i18n="type_to_confirm">اكتب كلمة</span>
       <b id="confirmWord">نعم</b>
       <span data-i18n="to_confirm">للتأكيد</span>
     </label>
-    <input type="text" id="confirmInput" autocomplete="off" spellcheck="false">
+    <input type="text" id="confirmInput" autocomplete="off" spellcheck="false" aria-label="confirm">
     <div class="modal-actions">
-      <button class="mini" id="modalCancel" data-i18n="cancel">إلغاء</button>
-      <button class="mini danger-btn solid" id="modalOk" disabled data-i18n="move_to_quarantine">نقل إلى السلة</button>
+      <button class="btn btn-ghost" id="modalCancel" type="button" data-i18n="cancel">إلغاء</button>
+      <button class="btn btn-danger" id="modalOk" type="button" disabled data-i18n="move_to_quarantine">نقل إلى السلة</button>
     </div>
   </div>
 </div>

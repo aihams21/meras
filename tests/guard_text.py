@@ -17,6 +17,10 @@ from pathlib import Path
 
 # Blocked ranges, expressed with escapes so this file stays clean.
 _RANGES = [
+    (0x0400, 0x04FF),   # Cyrillic
+    (0x0500, 0x052F),   # Cyrillic supplement
+    (0x2DE0, 0x2DFF),   # Cyrillic extended A
+    (0xA640, 0xA69F),   # Cyrillic extended B
     (0x1100, 0x11FF),   # Hangul Jamo
     (0x2E80, 0x2EFF),   # CJK radicals
     (0x3000, 0x303F),   # CJK symbols and punctuation

@@ -71,6 +71,19 @@ LARGE_FILE_THRESHOLD = 100 * 1024 * 1024   # 100 MB
 OLD_DOWNLOAD_DAYS = 365               # سنة
 MAX_WALK_ENTRIES = 400_000            # سقف أمان للأداء
 
+# أوزان المراحل: المشي هو الشريحة الأكبر من الوقت، والتحليل بعدها
+WALK_WEIGHT = 0.72
+ANALYZE_STEPS = [
+    "duplicates", "large", "old_downloads", "extensions",
+    "build", "empty_dirs",
+]
+
+
+def dirpath_hint(path: str) -> str:
+    """يقصّر المسار الطويل لعرضه في شريط التقدّم."""
+    p = str(path)
+    return p if len(p) <= 68 else "…" + p[-67:]
+
 
 class Scanner:
     """ماسح المساحة. كل الدوال ترجع نتائج نظيفة جاهزة للعرض."""
@@ -78,9 +91,17 @@ class Scanner:
     def __init__(self, progress=None):
         self.progress = progress or (lambda *_: None)
         self._cancel = False
+        self._total_roots = 1
+        self._roots_done = 0
+        self.scanned_files = 0
+        self._collecting = False
 
     def cancel(self):
         self._cancel = True
+
+    def _report(self, phase: str, detail: str = "", fraction: float = 0.0) -> None:
+        """يبعت التقدّم الحقيقي: مرحلة + مسار + نسبة مكتملة."""
+        self.progress(phase, detail, max(0.0, min(1.0, fraction)))
 
     # ---------- helpers ----------
     def _walk(self, root: str, follow=False):
@@ -92,12 +113,28 @@ class Scanner:
                 return
             count += len(dirnames) + len(filenames)
             if count > MAX_WALK_ENTRIES:
-                self.progress("limit", root)
+                self.progress("limit", root, 1.0)
                 return
             # تخطّي المجلدات الحساسة entirely
             dirnames[:] = [d for d in dirnames if not safety.is_sensitive_name(os.path.join(dirpath, d))]
             yield dirpath, dirnames, filenames
-            self.progress("walk", dirpath)
+            self._walk_tick(root, count)
+
+    def _walk_tick(self, root: str, count: int) -> None:
+        """تقدّم المشي داخل جذر واحد.
+
+        عدد الملفات الإجمالي ما بيعرف قبل ما نخلص، فبنقدّر التقدّم من جذر
+        خلصناه من أصل كل الجذور، مع تنعيم داخل الجذر الواحد.
+
+        ملاحظة: بعض المراحل اللاحقة (مثل مجلدات البناء) تمشي على المجلدات
+        مرة ثانية. لا تُحدّث هذه المرحلة التقدّم إلا أثناء جمع الملفات
+        الأساسي، وإلا اختلّ الترتيب.
+        """
+        if not self._collecting:
+            return
+        total = max(1, self._total_roots)
+        done = self._roots_done + min(1.0, count / 250_000.0)
+        self._report("walk", dirpath_hint(root), done / total * WALK_WEIGHT)
 
     @staticmethod
     def _sha256(path: str, chunk=1024 * 1024) -> str | None:
@@ -117,27 +154,37 @@ class Scanner:
     def scan_all(self) -> dict:
         """يفحص كل المجلدات الشخصية + Zakalate."""
         folders = user_folders()
-        self.progress("start", "")
+        self._report("start", "", 0.0)
 
         result = {
             "categories": {},
             "total_reclaimable": 0,
             "scanned_roots": [],
             "duration_ms": 0,
+            "files_scanned": 0,
         }
         t0 = time.time()
 
         # نجمع الملفات مرة وحدة
         files = self._collect_files(folders)
 
-        # ---- duplicates ----
+        # كل مرحلة تحليل تاخذ شريحة من التقدّم بعد انتهاء المشي
+        step = (1.0 - WALK_WEIGHT) / len(ANALYZE_STEPS)
+
+        def mark(i: int, name: str) -> None:
+            self._report(name, "", WALK_WEIGHT + step * i)
+
+        mark(0, "dup")
         result["categories"]["duplicates"] = self._find_duplicates(files)
-        # ---- large files ----
+
+        mark(1, "analyze_large")
         result["categories"]["large"] = self._find_large(files)
-        # ---- old downloads ----
+
+        mark(2, "analyze_old")
         result["categories"]["old_downloads"] = self._find_old_downloads(files, folders)
-        # ---- temp + logs ----
-        temp, logs, installers, build = [], [], [], []
+
+        mark(3, "analyze_types")
+        temp, logs, installers = [], [], []
         for f in files:
             ext = f["ext"]
             if ext in INSTALLER_EXT:
@@ -149,7 +196,11 @@ class Scanner:
         result["categories"]["installers"] = self._mk_items(installers, "installers", RISK_CAUTION, "installer")
         result["categories"]["logs"] = self._mk_items(logs, "logs", RISK_SAFE, "log")
         result["categories"]["temp"] = self._mk_items(temp, "temp", RISK_SAFE, "temp")
+
+        mark(4, "analyze_build")
         result["categories"]["build"] = self._find_build_dirs(folders)
+
+        mark(5, "analyze_empty")
         result["categories"]["empty_dirs"] = self._find_empty_dirs(folders)
 
         # ---- totals ----
@@ -158,10 +209,12 @@ class Scanner:
             total += sum(i["size"] for i in items)
         result["total_reclaimable"] = total
         result["duration_ms"] = int((time.time() - t0) * 1000)
+        result["files_scanned"] = self.scanned_files
         result["scanned_roots"] = [p for p in [
             folders.downloads, folders.desktop, folders.videos,
             folders.pictures, folders.documents, folders.temp,
         ] if p and os.path.isdir(p)]
+        result["root_sizes"] = dict(getattr(self, "_root_sizes", {}))
         return result
 
     def _collect_files(self, folders) -> list[dict]:
@@ -171,6 +224,12 @@ class Scanner:
         ] if p and os.path.isdir(p)]
         out: list[dict] = []
         seen_paths: set[str] = set()
+        self._total_roots = max(1, len(roots))
+        self._roots_done = 0
+        self.scanned_files = 0
+        self._collecting = True
+        # حجم كل مجلد مفحوص على حدة، تستعمله خريطة المساحة
+        self._root_sizes = {root: 0 for root in roots}
         for root in roots:
             for dirpath, dirnames, filenames in self._walk(root):
                 for name in filenames:
@@ -190,7 +249,12 @@ class Scanner:
                         "mtime": st.st_mtime,
                         "ext": Path(name).suffix.lower(),
                     })
-            self.progress("root_done", root)
+                    self._root_sizes[root] = self._root_sizes.get(root, 0) + st.st_size
+            self._roots_done += 1
+            self.scanned_files = len(out)
+            self._report("walk", dirpath_hint(root),
+                         self._roots_done / self._total_roots * WALK_WEIGHT)
+        self._collecting = False
         return out
 
     def _mk_items(self, files: list[dict], kind: str, risk: str, reason: str) -> list[dict]:
@@ -237,7 +301,6 @@ class Scanner:
                                        "hash": h[:12]},
                         mtime=dup["mtime"], ext=dup["ext"],
                     ).to_dict())
-            self.progress("dup", "")
         items.sort(key=lambda x: x["size"], reverse=True)
         return items
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import socket
 import threading
+import time
 import webbrowser
 from functools import partial
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -25,6 +26,7 @@ _scan_state = {
     "phase": "idle",
     "detail": "",
     "progress": 0.0,
+    "updated_at": 0.0,
 }
 _scan_lock = threading.Lock()
 _scan_result: dict = {}
@@ -36,7 +38,13 @@ def _set_progress(phase: str, detail: str, progress: float | None = None) -> Non
         _scan_state["phase"] = phase
         _scan_state["detail"] = detail
         if progress is not None:
-            _scan_state["progress"] = progress
+            # التقدّم لا يرجع للخلف أبداً حتى لو تأخّرت رسالة
+            try:
+                value = float(progress)
+            except (TypeError, ValueError):
+                return
+            _scan_state["progress"] = max(_scan_state["progress"], min(1.0, value))
+        _scan_state["updated_at"] = time.time()
 
 
 def start_scan() -> dict:
@@ -47,6 +55,8 @@ def start_scan() -> dict:
         _scan_state["running"] = True
         _scan_state["phase"] = "start"
         _scan_state["progress"] = 0.0
+        _scan_state["detail"] = ""
+        _scan_state["updated_at"] = time.time()
 
     def worker():
         global _scan_result
