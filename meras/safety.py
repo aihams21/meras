@@ -43,6 +43,24 @@ SENSITIVE_NAMES = {
     ".mozilla", "keychain", "library",
 }
 
+# استثناء داخل مجلد بيانات التطبيقات: بعض المجلدات تحتي عابرة بطبيعتها
+# (مؤقتة وكاش وسجلات). نسمح بتنظيفها لأنها ما تحتوي بيانات مستخدم، وبدونها
+# ما بيقدر التطبيق ينظف أي شي على ويندوز لأن مجلد Temp كله جوّا AppData.
+APP_DATA_SAFE_SUBDIRS = {
+    "temp", "tmp", "crashdumps", "cache", "caches", "code cache",
+    "gpucache", "shadercache", "dawncache", "crashpad", "logs", "log",
+    "temp state", "webcache", "cache_2", "cef_cache", "shadercache2",
+    "dumps", "crashes", "tempdir", "ie4u_cache",
+}
+
+# الأسماء التي تحمي بيانات المستخدم داخل مجلد بيانات التطبيقات
+APP_DATA_PARENTS = {
+    "appdata", "roaming", "local low", "application support",
+}
+
+# مجلدات وسيطة بنيوية داخل بيانات التطبيقات، تتخطّى قبل وصولنا للمجلد العابر
+APP_DATA_CONTAINERS = {"local", "local low", "roaming"}
+
 # game / project data - لا تُلمس
 SENSITIVE_EXTENSIONS = {
     ".wallet", ".dat", ".sqlite", ".sqlite3", ".db", ".key", ".pem",
@@ -107,9 +125,18 @@ def is_sensitive_name(path: str) -> bool:
     raw = str(path).replace("\\", "/")
     parts = [p for p in raw.split("/") if p]
     low_parts = [p.lower() for p in parts]
-    for part in low_parts:
-        if part in SENSITIVE_NAMES:
-            return True
+    for i, part in enumerate(low_parts):
+        if part not in SENSITIVE_NAMES:
+            continue
+        # مجلد بيانات التطبيقات: نسأل هل تحتي مجلد عابر معروف (مؤقت/كاش)
+        # ولا بيانات مستخدم حقيقية (إعدادات، حفظ ألعاب)
+        if part in APP_DATA_PARENTS:
+            below = low_parts[i + 1:-1]
+            rest = [sub for sub in below if sub not in APP_DATA_CONTAINERS]
+            # المجلد العابر أول اسم حقيقي بعد المجلدات البنيوية
+            if rest and rest[0] in APP_DATA_SAFE_SUBDIRS:
+                continue
+        return True
     # فحص لاحقة الملف
     base = low_parts[-1] if low_parts else ""
     for ext in SENSITIVE_EXTENSIONS:

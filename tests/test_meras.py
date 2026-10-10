@@ -46,6 +46,31 @@ class TestSafety(unittest.TestCase):
             ok, _ = safety.quarantine_allowed(f"/home/user/{name}/thing")
             self.assertFalse(ok, name)
 
+    def test_app_data_scratch_folders_allowed(self):
+        """مجلدات العابرة داخل بيانات التطبيقات لازم تكون قابلة للتنظيف.
+
+        بدون هذا الاستثناء ما بيقدر التطبيق ينظف شي على ويندوز، لأن مجلد
+        Temp المؤقت كله جوّا AppData.
+        """
+        for path in (
+            "C:\\Users\\me\\AppData\\Local\\Temp\\junk.tmp",
+            "C:\\Users\\me\\AppData\\Local\\Temp\\tmpab12\\junk.txt",
+            "C:\\Users\\me\\AppData\\Local\\Temp\\a\\b\\deep.log",
+            "C:\\Users\\me\\AppData\\Local\\CrashDumps\\app.exe.1234.dmp",
+        ):
+            self.assertFalse(safety.is_sensitive_name(path), path)
+
+    def test_app_data_real_data_still_refused(self):
+        """بيانات المستخدم جوّا بيانات التطبيقات بتضل محميّة."""
+        for path in (
+            "C:\\Users\\me\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\a.default\\places.sqlite",
+            "C:\\Users\\me\\AppData\\Roaming\\Game\\Saved Games\\slot1.sav",
+            "C:\\Users\\me\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\a.dat",
+            "C:\\Users\\me\\AppData\\Local",
+            "C:\\Users\\me\\AppData\\Roaming",
+        ):
+            self.assertTrue(safety.is_sensitive_name(path), path)
+
     def test_user_own_folders_allowed(self):
         """مجلدات المستخدم هي هدف الفحص، لازم ما تكون محظورة."""
         for name in ("Downloads", "Documents", "Videos", "Pictures", "Music", "Desktop"):
