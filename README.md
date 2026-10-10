@@ -66,7 +66,7 @@
 
 | الملف | الشرح |
 |---|---|
-| [`meras-1.0.0-windows.exe`](../../releases/download/v1.0.0/meras-1.0.0-windows.exe) | ملف واحد مستقل، ما بيحتاج تنصيب |
+| [`meras-1.0.0-windows.exe`](https://github.com/aihams21/meras/releases/download/v1.0.0/meras-1.0.0-windows.exe) | ملف واحد مستقل، ما بيحتاج تنصيب |
 
 **التثبيت:** نزّل الملف ← انقر عليه مرتين ← بتشتغل النافذة.
 
@@ -77,8 +77,8 @@
 
 | الملف | الشرح |
 |---|---|
-| [`meras_1.0.0_amd64.deb`](../../releases/download/v1.0.0/meras_1.0.0_amd64.deb) | لأوبونتو وديبيان وزي-os |
-| [`meras-1.0.0-linux.tar.gz`](../../releases/download/v1.0.0/meras-1.0.0-linux.tar.gz) | نسخة محمولة بدون تنصيب |
+| [`meras_1.0.0_amd64.deb`](https://github.com/aihams21/meras/releases/download/v1.0.0/meras_1.0.0_amd64.deb) | لأوبونتو وديبيان وزي-os |
+| [`meras-1.0.0-linux.tar.gz`](https://github.com/aihams21/meras/releases/download/v1.0.0/meras-1.0.0-linux.tar.gz) | نسخة محمولة بدون تنصيب |
 
 **تثبيت الحزمة:**
 
@@ -86,7 +86,7 @@
 sudo apt install ./meras_1.0.0_amd64.deb
 ```
 
-بعدها بيظهر Myrās في قائمة التطبيقات، أو اكتب في الطرفية:
+بعدها بيظهر ميراس في قائمة التطبيقات، أو اكتب في الطرفية:
 
 ```bash
 meras
@@ -219,7 +219,7 @@ personal files and anything modified in the last 24 hours are refused by a
 dedicated safety layer.
 
 Downloads, installation instructions and checksums are in the
-[Releases](../../releases) page.
+[Releases](https://github.com/aihams21/meras/releases) page.
 
 ---
 

@@ -5,8 +5,8 @@
     python tools/build_app.py --clean    # تنظيف مخرجات سابقة ثم البناء
 
 المخرجات:
-    dist/meras          (لينكس)
-    dist/meras.exe      (ويندوز)
+    dist/meras-1.0.0            (لينكس)
+    dist/meras-1.0.0-windows.exe  (ويندوز)
 
 ملاحظات:
 - لا يحتاج المستخدم النهائي إلى تثبيت بايثون ولا أي مكتبة
@@ -30,6 +30,17 @@ WEB = ROOT / "web"
 ICON_ICO = ROOT / "tools" / "icon.ico"
 DIST = ROOT / "dist"
 WORK = ROOT / "build"
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from meras import __version__
+
+
+def binary_name() -> str:
+    """اسم الملف التنفيذي، ويشمل رقم النسخة واسم النظام."""
+    suffix = "-windows" if os.name == "nt" else "-linux"
+    return f"{APP_NAME}-{__version__}{suffix}"
 
 
 def log(msg: str) -> None:
@@ -61,7 +72,7 @@ def build(onefile: bool = True, console: bool = False, clean: bool = False) -> i
         sys.executable, "-m", "PyInstaller",
         "--noconfirm",
         "--clean",
-        "--name", APP_NAME,
+        "--name", binary_name(),
         "--distpath", str(DIST),
         "--workpath", str(WORK),
         "--specpath", str(WORK),
@@ -94,7 +105,7 @@ def build(onefile: bool = True, console: bool = False, clean: bool = False) -> i
         log("PyInstaller failed")
         return proc.returncode
 
-    binary = DIST / (APP_NAME + (".exe" if os.name == "nt" else ""))
+    binary = DIST / (binary_name() + (".exe" if os.name == "nt" else ""))
     if not binary.exists():
         log("build finished but the binary is missing")
         return 1

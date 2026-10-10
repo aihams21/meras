@@ -105,7 +105,8 @@ jobs:
           mkdir -p release
           find artifacts -type f \( -name '*.deb' -o -name '*.tar.gz' -o -name '*.exe' \) \
             -exec cp {} release/ \;
-          cp artifacts/*/SHA256SUMS.txt release/ 2>/dev/null || true
+          cat artifacts/*/SHA256SUMS.txt > release/SHA256SUMS.txt
+          (cd release && sha256sum -c SHA256SUMS.txt)
           ls -la release/
 
       - name: Create the release
@@ -114,37 +115,50 @@ jobs:
           files: release/*
           generate_release_notes: true
           body: |
-            ## Meras ${{ github.ref_name }}
+            ## ميراس · Meras ${{ github.ref_name }}
 
-            ### Linux
+            تطبيق سطح مكتب لتحرير المساحة. تنقر عليه مرتين، تفتحلك نافذة.
+            ما في متصفح ولا شريط عنوان: كل شي بيشتغل خلف الكواليس.
 
-            Install the package:
+            A real desktop space cleaner. Double click it and a native window
+            opens. No browser, no address bar, nothing of the web stack visible.
+
+            ### ويندوز · Windows
+
+            نزّل `meras-${{ github.ref_name }}-windows.exe` وشغّله بنقرة.
+            إذا ظهر تحذير SmartScreen اختر **More info** ثم **Run anyway**،
+            لأن البناء غير موقّع رقمياً.
+
+            Download the executable and run it. If SmartScreen warns, choose
+            "More info" then "Run anyway" because the build is unsigned.
+
+            ### لينكس · Linux
 
             ```bash
-            sudo apt install ./meras_*.deb
+            sudo apt install ./meras_*_amd64.deb
             ```
 
-            Or use the portable archive without installing:
+            أو بدون تنصيب، بالنسخة المحمولة:
 
             ```bash
             tar -xzf meras-*-linux.tar.gz
             cd meras
-            ./run.py
+            python3 run.py
             ```
 
-            ### Windows
-
-            Download the executable, then double click it. Windows SmartScreen may
-            show a warning because the build is not signed. Choose "More info" then
-            "Run anyway".
-
-            ### Verify the download
-
-            Compare the SHA256SUMS.txt file with your download:
+            ### التحقق من السلامة · Verify
 
             ```bash
             sha256sum -c SHA256SUMS.txt
             ```
 
-            Nothing is ever deleted permanently. Selected items move to a
-            quarantine folder that you can restore at any time.
+            ### ما في حذف نهائي · Nothing is deleted permanently
+
+            الملف اللي بتختاره بينقل **سلة** داخل بيتك ومعه سجلّ يقدر يرجّعه
+            بضغطة. ملفات النظام والإعدادات ومفاتيح الألعاب والملفات الطازجة
+            مرفوضة من طبقة حماية مستقلة.
+
+            Selected items move to a quarantine folder inside your home
+            directory, recorded in a manifest, and restorable with one click.
+            System files, settings, game saves and anything modified in the
+            last 24 hours are refused by a dedicated safety layer.
