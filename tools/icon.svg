@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111a3d"/>
+      <stop offset="0.55" stop-color="#0a0f2b"/>
+      <stop offset="1" stop-color="#05070f"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.5" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="safe" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="warn" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="danger" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#dc2626"/>
+      <stop offset="1" stop-color="#f87171"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.03"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#sheen)"/>
+
+  <!-- حلقة الخريطة -->
+  <circle cx="256" cy="256" r="168" fill="none" stroke="url(#ring)" stroke-width="14" opacity="0.95" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.25"/>
+
+  <!-- قوس المساحة المستعملة -->
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#22d3ee" stroke-width="14"
+          stroke-linecap="round" stroke-dasharray="700 1200" transform="rotate(-90 256 256)"/>
+
+  <!-- أشرطة الأقسام: آمن / حذر / خطر -->
+  <g>
+    <rect x="196" y="168" width="120" height="26" rx="13" fill="url(#safe)"/>
+    <rect x="212" y="214" width="88" height="26" rx="13" fill="url(#warn)"/>
+    <rect x="232" y="260" width="48" height="26" rx="13" fill="url(#danger)"/>
+    <rect x="176" y="306" width="160" height="22" rx="11" fill="#6366f1" opacity="0.75"/>
+  </g>
+
+  <!-- نواة -->
+  <circle cx="256" cy="352" r="20" fill="#0a0f2b"/>
+  <circle cx="256" cy="352" r="11" fill="#22d3ee" filter="url(#glow)"/>
+
+  <!-- بريق علوي -->
+  <path d="M112 96 Q256 24 400 96 Q256 60 112 96 Z" fill="#ffffff" opacity="0.07"/>
+</svg>

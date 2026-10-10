@@ -1,0 +1,150 @@
+name: Build
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    name: Linux package
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install desktop runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            python3-gi python3-cairo \
+            gir1.2-gtk-3.0 gir1.2-webkit2-4.1 \
+            libgtk-3-0 libwebkit2gtk-4.1-0 \
+            desktop-file-utils
+
+      - name: Guard against forbidden characters
+        run: python tests/guard_text.py
+
+      - name: Run tests
+        run: python -m unittest discover tests -v
+
+      - name: Build packages
+        run: python tools/build_deb.py
+
+      - name: Package the portable tarball
+        run: |
+          cd dist
+          sha256sum *.deb *.tar.gz > SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meras-linux
+          path: |
+            dist/*.deb
+            dist/*.tar.gz
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+  windows:
+    name: Windows executable
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pywebview pyinstaller
+
+      - name: Guard against forbidden characters
+        run: python tests/guard_text.py
+
+      - name: Run tests
+        run: python -m unittest discover tests -v
+
+      - name: Build executable
+        run: python tools/build_app.py
+
+      - name: Write checksums
+        run: |
+          cd dist
+          (Get-FileHash *.exe -Algorithm SHA256) | ForEach-Object {
+            "$($_.Hash.ToLower())  $($_.Path | Split-Path -Leaf)"
+          } | Out-File -Encoding ascii SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meras-windows
+          path: |
+            dist/*.exe
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect release files
+        run: |
+          mkdir -p release
+          find artifacts -type f \( -name '*.deb' -o -name '*.tar.gz' -o -name '*.exe' \) \
+            -exec cp {} release/ \;
+          cp artifacts/*/SHA256SUMS.txt release/ 2>/dev/null || true
+          ls -la release/
+
+      - name: Create the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
+          body: |
+            ## Meras ${{ github.ref_name }}
+
+            ### Linux
+
+            Install the package:
+
+            ```bash
+            sudo apt install ./meras_*.deb
+            ```
+
+            Or use the portable archive without installing:
+
+            ```bash
+            tar -xzf meras-*-linux.tar.gz
+            cd meras
+            ./run.py
+            ```
+
+            ### Windows
+
+            Download the executable, then double click it. Windows SmartScreen may
+            show a warning because the build is not signed. Choose "More info" then
+            "Run anyway".
+
+            ### Verify the download
+
+            Compare the SHA256SUMS.txt file with your download:
+
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            ```
+
+            Nothing is ever deleted permanently. Selected items move to a
+            quarantine folder that you can restore at any time.

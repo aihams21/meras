@@ -1,0 +1,35 @@
+name: طلب ميزة | Feature request
+description: suggest something the app should be able to do
+title: "[ميزة] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: شو المشكلة اللي بتواجهك | What problem are you facing
+      description: اشرح الموقف الحقيقي اللي بيوقّفك.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: شو تتوقع | What you would like to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: حلول جرّبتها | Alternatives you tried
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: نطاق التغيير | Scope of the change
+      options:
+        - label: الفحص والنتائج
+        - label: الواجهة والخريطة
+        - label: الحماية والسلة
+        - label: التثبيت والتوزيع
+          required: false

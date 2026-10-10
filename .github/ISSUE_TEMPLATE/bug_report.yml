@@ -1,0 +1,63 @@
+name: بلاغ خطأ | Bug report
+description: report something that does not work as expected
+title: "[خطأ] "
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: إصدار ميراس | Meras version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: system
+    attributes:
+      label: نظام التشغيل | Operating system
+      options:
+        - Ubuntu
+        - Debian
+        - Fedora
+        - Arch
+        - Other Linux
+        - Windows 11
+        - Windows 10
+      validations:
+        required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: إصدار بايثون (لو بنيت من المصدر) | Python version
+      placeholder: "3.12"
+
+  - type: textarea
+    id: what
+    attributes:
+      label: شو صار بالضبط | What happened
+      description: اشرح الخطأ بوضوح، وخطوات إعادة إنتاجه.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: شو كنت تتوقع | What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: مخرجات الطرفية | Terminal output
+      render: shell
+      description: شغّل التطبيق مع الراية `--debug` وانسخ المخرجات.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: تأكيد | Confirmation
+      options:
+        - label: تأكدت أن التطبيق ما حذف أي ملف مهم
+          required: true

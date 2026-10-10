@@ -1,0 +1,29 @@
+# بايثون
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# مخرجات البناء
+build/
+dist/
+*.spec
+
+# ملفات IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# سجلات
+*.log
+
+# ملفات microenvironment
+.env
+.env.*
+
+# نظام الحزم temporary
+.meras_quarantine/

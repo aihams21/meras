@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: Guards and tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guard against forbidden characters
+        run: python tests/guard_text.py
+
+      - name: Run the test suite
+        run: python -m unittest discover tests -v
+
+      - name: Check every python file compiles
+        run: python -m compileall -q meras tools tests run.py
+
+      - name: Check the interface translation keys match
+        run: |
+          python - <<'PY'
+          import json, re, sys
+          src = open("web/i18n.js", encoding="utf-8").read()
+          ar = set(re.findall(r'^\s{4}(\w+):', src[src.index("ar:"):src.index("en:")], re.M))
+          en = set(re.findall(r'^\s{4}(\w+):', src[src.index("en:"):], re.M))
+          missing_ar = en - ar
+          missing_en = ar - en
+          if missing_ar or missing_en:
+              print("translation keys differ")
+              print("only in english:", sorted(missing_ar))
+              print("only in arabic:", sorted(missing_en))
+              sys.exit(1)
+          print(f"{len(ar)} translation keys match in both languages")
+          PY
