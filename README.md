@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/aihams21/meras/actions/workflows/ci.yml/badge.svg)](https://github.com/aihams21/meras/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)
 
 </div>
 
@@ -16,16 +16,42 @@
 
 ## شو هو ميراس
 
-ميراس تطبيق حقيقي بتنقر عليه مرتين، بتفتحلك نافذة. **ما في متصفح، ما في
-شريط عنوان، ما في رابط.** كل شي بيشتغل خلف الكواليس.
+<div align="center">
 
-بيعمل شيئين:
+### هاد **تطبيق**، مش موقع.
+
+</div>
+
+**كيف بتعرف إنه تطبيق مش موقع؟**
+
+| | تطبيق سطح مكتب (ميراس) | موقع |
+|---|---|---|
+| شو بتضغط | ملف على جهازك | رابط بالمتصفح |
+| شو بتستخدم | نافذة مستقلة | تبويب المتصفح |
+| في شريط عنوان المتصفح؟ | **لا** | نعم |
+| في متصفح بيشتغل بيه؟ | **لا** | نعم |
+| كيف بتقفله؟ | زر ✕ بالشباك | بتقفل المتصفح كله |
+
+بتنصّب الملف عالجهاز وبتحط عليه نقرتين، فتفتحلك **شباك مستقل** على الشاشة،
+فوق باقى النوافذ، إلو أزرار تصغير وتكبير وسكّر بإيده. لما سكّر الشباك
+بيروح البرنامج كله. **ما في عنوان موقع، ما في شريط أدوات، ما في تبويبات.**
+
+ليش الواجهة مكتوبة بتقنية webpages؟ لأنها أسهل بكتير نطلع فيها تصميم
+حلو. بس هاد **مش معناه إنو موقع** — المتصفح متخبّى جوّا الشباك، والفحص
+والحماية ونقل الملفات كلّها شغلة بايثون شغّالة ورا الكواليس.
+
+**شو بيعمل البرنامج:**
 
 1. **خريطة مساحتك.** زر ثاني بيفتح خريطة لكل قرص عندك فيها المساحة
    المستعملة والمتبقية، مع ترميز لوني: أخضر للراحة، برتقالي للانتباه، **أحمر
    للخطر**. كل مربع ينقلك إلى الملفات المسؤولة عنه.
 2. **تنظيف آمن.** بيفحص الجهاز وبيطلعلك الملفات الكبيرة والمكررة والقديمة
    والمؤقتة، **وبما فيك إلا اللي بتختاره انت**.
+
+**كيف بتستخدمه من أول ما تفتحه:** بتشوف شاشة فيها زر «فحص الجهاز».
+بتضغطه، بيفحص وبيطلعلك شريط بيتملا، ولما يخلص بتقدر تتنقل بين خمس شاشات
+من الشريط الجانبي: الرئيسية، خريطة المساحة، التنظيف الآمن، السلة، الإعدادات.
+وبتلاقي زر اللغة فوق لتبديل عربي/إنجليزي، وزر المظهر للداكن/الفاتح.
 
 ---
 
@@ -52,6 +78,7 @@
 | نظام التشغيل | `/usr` `/etc` `/bin`، `C:\Windows` `C:\Program Files` |
 | مجلد المنزل | جذر المجلد و `home` |
 | إعدادات ومفاتيح | `.ssh` `.git` `.env` `.gnupg` `id_rsa` |
+| مشاريعك البرمجية | **أي شيء داخل مجلد فيه `.git` أو `.hg` أو `.svn`**، حتى مجلد `build` |
 | بيانات الألعاب | `Saved Games` `steamapps` ملفات `.sav` |
 | ملفات شخصية | `.wallet` `.key` `.sqlite` `.db` |
 | الملفات الطازجة | أي ملف معدّل خلال آخر ٢٤ ساعة |
@@ -66,7 +93,7 @@
 
 | الملف | الشرح |
 |---|---|
-| [`meras-1.0.1-windows.exe`](https://github.com/aihams21/meras/releases/download/v1.0.1/meras-1.0.1-windows.exe) | ملف واحد مستقل، ما بيحتاج تنصيب |
+| [`meras-1.0.2-windows.exe`](https://github.com/aihams21/meras/releases/download/v1.0.2/meras-1.0.2-windows.exe) | ملف واحد مستقل، ما بيحتاج تنصيب |
 
 **التثبيت:** نزّل الملف ← انقر عليه مرتين ← بتشتغل النافذة.
 
@@ -77,28 +104,36 @@
 
 | الملف | الشرح |
 |---|---|
-| [`meras_1.0.1_amd64.deb`](https://github.com/aihams21/meras/releases/download/v1.0.1/meras_1.0.1_amd64.deb) | لأوبونتو وديبيان وزي-os |
-| [`meras-1.0.1-linux.tar.gz`](https://github.com/aihams21/meras/releases/download/v1.0.1/meras-1.0.1-linux.tar.gz) | نسخة محمولة بدون تنصيب |
+| [`meras_1.0.2_amd64.deb`](https://github.com/aihams21/meras/releases/download/v1.0.2/meras_1.0.2_amd64.deb) | لأوبونتو وديبيان وزي-os |
+| [`meras-1.0.2-linux.tar.gz`](https://github.com/aihams21/meras/releases/download/v1.0.2/meras-1.0.2-linux.tar.gz) | نسخة محمولة بدون تنصيب |
 
-**تثبيت الحزمة:**
+**الطريقة المنصوح بها — تثبيت الحزمة:**
 
 ```bash
-sudo apt install ./meras_1.0.1_amd64.deb
+sudo apt install ./meras_1.0.2_amd64.deb
 ```
 
-بعدها بيظهر ميراس في قائمة التطبيقات، أو اكتب في الطرفية:
+بعدها بيظهر ميراس في قائمة التطبيقات، وبتفتحه بنقرة وحدة. أو اكتب في
+الطرفية:
 
 ```bash
 meras
 ```
 
-**تشغيل النسخة المحمولة بدون تنصيب:**
+**النسخة المحمولة — إذا ما بدك تنصيب شي:**
 
 ```bash
-tar -xzf meras-1.0.1-linux.tar.gz
+tar -xzf meras-1.0.2-linux.tar.gz
 cd meras
 python3 run.py
 ```
+
+هالأمر بيشغّل الشباك فوراً وبيقعد مفتوح لحد ما سكّره بنفسك. ما بينصّب
+ولا شي عالنظام، وكل المكتبات اللي بيشتغلها جاية جوّا المجلد.
+
+> **لو ما عندك `python3` أصلاً:** النسخة المحمولة بتحتاج بايثون 3.9 أو
+> أحدث. على أغلب التوزيعات بايثون موجود. الحزمة `.deb` أسهل لأنها بتجيب
+> كل شي لحالها.
 
 > على لينكس، الحزمة بتطلب `python3-gi` و `gir1.2-webkit2-4.1` وهي موجودة
 > أصلا على أي توزيعة حديثة. لو ناقصك شي، مدير الحزم رح يخبرك بالاسم.
@@ -166,10 +201,13 @@ python3 tests/guard_text.py                  # يمنع المحارف المم�
 python3 -m unittest discover tests           # اختبارات المنطق والحماية
 ```
 
-اختبار الواجهة الكامل (يتطلب تنصيب `jsdom`) يتحقق من ٨٠ حالة: إقلاع
-التطبيق، التنقل بين الشاشات الخمس، تبديل اللغة والمظهر، شريط تقدّم الفحص
-الحقيقي، التحديد والنقل مع نافذة التأكيد، مرشّح الخطورة، السلة، وظهور شريط
-النافذة عند وصول جسر سطح المكتب.
+اختبارات المنطق والحماية (٢٢ حالة) بتغطي الماسح، العزل، وحماية المشاريع:
+أي مجلد فيه `.git` أو `.hg` أو `.svn` بيصير محمي بالكامل، حتى مجلد `build`
+بتاعه، لأن المشروع شغل المستخدم.
+
+وفحص الواجهة بمتصفح حقيقي بيتأكد من: إقلاع التطبيق، التنقل بين الشاشات
+الخمسة، تبديل اللغة والمظهر، شريط تقدّم الفحص الحقيقي، التحديد والنقل مع
+نافذة التأكيد، مرشّح الخطورة، السلة، وأزرار النافذة.
 
 ---
 
@@ -208,11 +246,33 @@ meras/
 
 ## English summary
 
-Meras is a real desktop application for Windows and Linux. Double click it and
-a native window opens. There is no browser, no address bar, and no URL: the
-local server runs entirely behind the scenes.
+**Meras is a desktop application, not a website.** You install the file on
+your machine and double click it, and a native window opens on your screen:
+its own minimise, maximise and close buttons, no browser, no address bar, no
+tabs, no URL. Close the window and the whole program exits. The web view is
+hidden inside the window on purpose; all scanning, safety checking and file
+moving happens in Python behind the scenes.
 
-It does two things:
+### How to run it
+
+**Windows** — download `meras-1.0.2-windows.exe`, double click it. Done.
+
+**Linux** — either install the package:
+
+```bash
+sudo apt install ./meras_1.0.2_amd64.deb
+```
+
+then find *Meras* in your applications, or run `meras` in a terminal; or use
+the portable build with nothing installed at all:
+
+```bash
+tar -xzf meras-1.0.2-linux.tar.gz
+cd meras
+python3 run.py
+```
+
+### What it does
 
 1. **Maps your space.** A second button opens a colour coded map of every
    drive: green for comfortable, amber for caution, red for danger. Each tile
@@ -220,11 +280,16 @@ It does two things:
 2. **Cleans safely.** It finds duplicate, oversized, old, temporary and build
    leftovers, and cleans only what you select.
 
+Five screens, reachable from the sidebar: Dashboard, Space Map, Safe Cleanup,
+Quarantine and Settings. Language (Arabic/English) and theme (dark/light)
+buttons sit at the top.
+
 **Nothing is ever deleted permanently.** Selected items move to a quarantine
 folder inside your home directory, recorded in a manifest, and can be restored
 with one click. System paths, home directories, settings, keys, game saves,
-personal files and anything modified in the last 24 hours are refused by a
-dedicated safety layer.
+personal files, **anything inside a project folder** (a directory containing
+`.git`, `.hg` or `.svn`, including its `build` folder) and anything modified
+in the last 24 hours are refused by a dedicated safety layer.
 
 Downloads, installation instructions and checksums are in the
 [Releases](https://github.com/aihams21/meras/releases) page.

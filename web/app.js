@@ -18,9 +18,29 @@
     done: "ph_done", error: "t_scan_err",
   };
 
+  // بعض نسخ WebKit داخل نافذة سطح المكتب ما بتوفّر localStorage،
+  // وكتابته مباشرة كانت بتوقف السكربت كله قبل ما يرسم أي شي.
+  const store = {
+    get(key, fallback) {
+      try {
+        const v = window.localStorage.getItem(key);
+        return v === null || v === undefined ? fallback : v;
+      } catch (e) {
+        return fallback;
+      }
+    },
+    set(key, value) {
+      try {
+        window.localStorage.setItem(key, value);
+      } catch (e) {
+        /* الوضع الخاص أو قرص ممتلئ: نتجاهل ونكمل */
+      }
+    },
+  };
+
   const state = {
-    lang: localStorage.getItem(LS_LANG) || "ar",
-    theme: localStorage.getItem(LS_THEME) || "dark",
+    lang: store.get(LS_LANG, "ar"),
+    theme: store.get(LS_THEME, "dark"),
     view: "dashboard",
     system: null,
     drives: [],
@@ -185,13 +205,13 @@
 
   function setLang(lang) {
     state.lang = lang;
-    localStorage.setItem(LS_LANG, lang);
+    store.set(LS_LANG, lang);
     applyLang();
   }
 
   function setTheme(theme) {
     state.theme = theme;
-    localStorage.setItem(LS_THEME, theme);
+    store.set(LS_THEME, theme);
     document.body.dataset.theme = theme;
     document.querySelectorAll("#themeSeg .seg-btn").forEach((b) => {
       b.classList.toggle("is-on", b.dataset.themeVal === theme);

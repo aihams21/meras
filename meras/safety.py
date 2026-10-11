@@ -150,6 +150,27 @@ def is_sensitive_name(path: str) -> bool:
     return False
 
 
+def is_project_path(path: str) -> bool:
+    """هل المسار داخل مشروع برمجي؟
+
+    المشروع بيتعرّف عليه وجود مجلد إصدارات بجذره: .git أو .hg أو .svn.
+    أي شيء داخل مشروع هو شغل المستخدم، وما من حق التطبيق يقترح تنظيفه
+    عليه حتى لو كان مجلد build أو __pycache__، لأن القرار للمستخدم وحده.
+    """
+    p = Path(_norm(str(path)))
+    # نرفع الصعد ببطء لحد ما نوصل الجذر، بدون ما نلمس القرص بلا داعي
+    for parent in [p, *p.parents]:
+        try:
+            if not parent.is_dir():
+                continue
+            for marker in (".git", ".hg", ".svn"):
+                if (parent / marker).exists():
+                    return True
+        except OSError:
+            continue
+    return False
+
+
 def is_safe_to_delete(path: str) -> bool:
     """البوابة النهائية: هل ينفع التطبيق يعرض هذا المسار للتنظيف؟"""
     if not path or not os.path.exists(path):
@@ -169,7 +190,11 @@ def is_safe_to_delete(path: str) -> bool:
     if is_sensitive_name(p):
         return False
 
-    # 4) ممنوع أي ملف مدّته أقل من 24 ساعة (يمكن شغّال)
+    # 4) ممنوع أي شيء داخل مشروع برمجي مهما كان شكله
+    if is_project_path(p):
+        return False
+
+    # 5) ممنوع أي ملف مدّته أقل من 24 ساعة (يمكن شغّال)
     try:
         st = os.lstat(p)
         import time

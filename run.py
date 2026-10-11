@@ -8,7 +8,15 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
+
+# النسخة المحمولة بتجيب pywebview و bottle جوّاها بمجلد vendor.
+# لازم هالمجلد يسبق أي نسخة مثبّتة على الجهاز، وإلا البرنامج
+# بيحمل pywebview من النظام وبيفشل عند المستخدم يلي ما عنده فيها.
+_VENDOR = ROOT / "vendor"
+if _VENDOR.is_dir():
+    sys.path.insert(0, str(_VENDOR))
 
 
 def main() -> int:

@@ -172,6 +172,80 @@ class TestDuplicates(unittest.TestCase):
             # SAFETY قد يرفض الملفات الأحدث من 24 ساعة، المهم ترجع قائمة
             self.assertIsInstance(dupes, list)
 
+class TestProjectProtection(unittest.TestCase):
+    """أي شيء داخل مشروع برمجي ما بينعرض للتنظيف."""
+
+    def test_build_dir_inside_repo_is_protected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "myproject"
+            (repo / "src").mkdir(parents=True)
+            (repo / ".git").mkdir()
+            (repo / "build").mkdir()
+            src = repo / "src" / "main.cpp"
+            src.write_text("int main(){}")
+            build = repo / "build" / "out.bin"
+            build.write_bytes(b"x" * 10)
+
+            self.assertTrue(safety.is_project_path(str(repo)))
+            self.assertTrue(safety.is_project_path(str(build)))
+            self.assertFalse(safety.is_safe_to_delete(str(build)))
+            self.assertFalse(safety.is_safe_to_delete(str(src)))
+
+    def test_other_vcs_markers_are_protected(self):
+        for marker in (".hg", ".svn"):
+            with tempfile.TemporaryDirectory() as tmp:
+                repo = Path(tmp) / "p"
+                (repo / marker).mkdir(parents=True)
+                target = repo / "data.bin"
+                target.write_bytes(b"y" * 10)
+                self.assertTrue(safety.is_project_path(str(target)), marker)
+                self.assertFalse(safety.is_safe_to_delete(str(target)), marker)
+
+    def test_plain_folder_is_not_a_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            plain = Path(tmp) / "Downloads" / "stuff"
+            plain.mkdir(parents=True)
+            f = plain / "old.bin"
+            f.write_bytes(b"z" * 10)
+            os.utime(f, (time.time() - 10 * 86400, time.time() - 10 * 86400))
+            self.assertFalse(safety.is_project_path(str(f)))
+            self.assertTrue(safety.is_safe_to_delete(str(f)))
+
+    def test_build_category_skips_repo_build_dirs(self):
+        """مجلد build جوّا مشروع ما لازم يطلعجة بنتيجة الفحص."""
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "proj"
+            (repo / ".git").mkdir(parents=True)
+            build = repo / "build"
+            build.mkdir()
+            (build / "out.bin").write_bytes(b"x" * (6 * 1024 * 1024))
+            s = Scanner(progress=lambda *a_: None)
+            found = s._find_build_dirs(_Folders(tmp))
+            self.assertNotIn(str(build), [i["path"] for i in found])
+
+    def test_build_category_still_reports_plain_build_dir(self):
+        """مجلد build عادي برّا أي مشروع لازم يضل يظهر."""
+        with tempfile.TemporaryDirectory() as tmp:
+            build = Path(tmp) / "build"
+            build.mkdir()
+            (build / "out.bin").write_bytes(b"x" * (6 * 1024 * 1024))
+            s = Scanner(progress=lambda *a_: None)
+            found = s._find_build_dirs(_Folders(tmp))
+            self.assertIn(str(build), [i["path"] for i in found])
+
+
+class _Folders:
+    """مجلدات وهمية للفحص، بدون ما نلمس مجلدات المستخدم الحقيقية."""
+
+    def __init__(self, home):
+        self.home = str(home)
+        self.downloads = str(Path(home) / "Downloads")
+        self.desktop = str(Path(home) / "Desktop")
+        self.documents = str(Path(home) / "Documents")
+        self.videos = None
+        self.pictures = None
+        self.temp = None
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

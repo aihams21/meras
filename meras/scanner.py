@@ -328,7 +328,10 @@ class Scanner:
                     dirnames[:] = []
                     continue
                 base = os.path.basename(dirpath)
-                if base in BUILD_DIR_NAMES and not safety.is_sensitive_name(dirpath):
+                # نفس بوابة الأمان اللي بتحمي باقي الأقسام. بدونها
+                # مجلد build جوّا مشروع المستخدم بينعرض للتنظيف، وهذا
+                # شغله هو والقرار له.
+                if base in BUILD_DIR_NAMES and safety.is_safe_to_delete(dirpath):
                     size = self._dirsize_quick(dirpath)
                     if size > 5 * 1024 * 1024:
                         items.append(Item(
@@ -359,7 +362,7 @@ class Scanner:
                 continue
             for dirpath, dirnames, filenames in self._walk(root):
                 if not dirnames and not filenames and dirpath != root:
-                    if not safety.is_sensitive_name(dirpath):
+                    if safety.is_safe_to_delete(dirpath):
                         items.append(Item(
                             path=dirpath, size=4096, kind="empty_dirs",
                             risk=RISK_SAFE, reason_key="empty_dir",
